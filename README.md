@@ -1,57 +1,69 @@
+# Budget Tracker
 
+Effortlessly manage your finances, track expenses, and achieve your financial goals with our intelligent budget tracking solution.
 
-## Project info
+![Budget Tracker Screenshot](image.png)
 
+## Features
+- **Track Expenses**: Gain insights into your spending patterns with detailed expense tracking.
+- **Set Budgets**: Create and manage financial goals with intuitive budget-setting tools.
+- **Secure & Sync**: Your financial data is encrypted and seamlessly synchronized across devices.
 
+## Getting Started
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Prerequisites
+Make sure you have the following installed on your system:
+- [Node.js](https://nodejs.org/)
+- [Git](https://git-scm.com/)
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Installation
 
-# Step 3: Install the necessary dependencies.
-npm i
+1. **Clone the repository**
+   ```sh
+   git clone <https://github.com/Ayushsunny/Budgease.git>
+   ```
+2. **Navigate to the project directory**
+   ```sh
+   cd <Budgease>
+   ```
+3. **Install dependencies**
+   ```sh
+   npm i
+   ```
+4. **Start the development server**
+   ```sh
+   npm run dev
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+## Editing and Contributing
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
+### Edit a File Directly in GitHub
+- Navigate to the desired file.
 - Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- Make your changes and commit them.
 
-**Use GitHub Codespaces**
-
+### Use GitHub Codespaces
 - Navigate to the main page of your repository.
 - Click on the "Code" button (green button) near the top right.
 - Select the "Codespaces" tab.
 - Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- Edit files directly within the Codespace, commit, and push your changes.
 
-## What technologies are used for this project?
+## Technologies Used
+This project is built using:
+- [Vite](https://vitejs.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [React](https://react.dev/)
+- [Redux Toolkit](https://redux-toolkit.js.org/)
+- [React Router](https://reactrouter.com/)
+- [Firebase](https://firebase.google.com/)
+- [Firestore](https://firebase.google.com/docs/firestore)
+- [shadcn/ui](https://ui.shadcn.com/)
+- [Tailwind CSS](https://tailwindcss.com/)
 
-This project is built with .
+## License
+This project is licensed under the [MIT License](LICENSE).
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-project structure
-
-- `public/`: Static files that are served as-is.
-- `src/`: Source files for the project.
-  - `components/`: Reusable components.
-  - `pages/`: Pages of the application.
-  - `styles/`: Global styles.
-  - `App.tsx`: Root component of the application.
-  - `index.tsx`: Entry point of the application.
-- `vite.config.ts`: Vite configuration file.
-
-
+## Contact
+For any inquiries or support, please reach out via ayush.iiitdmj@gmail.com.
 

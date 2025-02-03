@@ -1,6 +1,6 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { logout, authStateListener, auth } from "@/firebase/firebase";
+import { logout, auth } from "@/firebase/firebase";
 import { Button } from "@/components/ui/button";
 import { Menu, Wallet } from "lucide-react";
 import {
@@ -51,7 +51,7 @@ const Navbar = () => {
             <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Wallet className="h-6 w-6 text-primary" />
-                    <span className="font-semibold text-lg">Budget</span>
+                    <span className="font-semibold text-lg">Budgease</span>
                 </div>
                 <Sheet>
                     <SheetTrigger asChild>
