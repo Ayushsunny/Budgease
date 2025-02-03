@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { BudgetData, Category, Expense } from '@/types/budget';
 import { useToast } from '@/hooks/use-toast';
+import { auth, db } from '@/firebase/firebase';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 
 interface BudgetContextType {
   budgetData: BudgetData;
@@ -12,43 +14,93 @@ interface BudgetContextType {
   removeCategory: (categoryId: string) => void;
 }
 
-const BudgetContext = createContext<BudgetContextType | undefined>(undefined);
-
 const defaultCategories: Category[] = [
   { id: '1', name: 'Rent', allocation: 0, expenses: [] },
   { id: '2', name: 'Home', allocation: 0, expenses: [] },
   { id: '3', name: 'Food Order', allocation: 0, expenses: [] },
   { id: '4', name: 'Grocery', allocation: 0, expenses: [] },
-  { id: '5', name: 'Shoping', allocation: 0, expenses: [] },
-  { id: '5', name: 'Subscription', allocation: 0, expenses: [] },
-  { id: '6', name: 'Misc', allocation: 0, expenses: [] },
+  { id: '5', name: 'Shopping', allocation: 0, expenses: [] },
+  { id: '6', name: 'Subscription', allocation: 0, expenses: [] },
+  { id: '7', name: 'Misc', allocation: 0, expenses: [] },
 ];
+
+const BudgetContext = createContext<BudgetContextType | undefined>(undefined);
 
 export function BudgetProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
-  const [budgetData, setBudgetData] = useState<BudgetData>(() => {
-    const saved = localStorage.getItem('budgetData');
-    return saved ? JSON.parse(saved) : {
-      salary: 0,
-      categories: defaultCategories,
-    };
+  const [budgetData, setBudgetData] = useState<BudgetData>({
+    salary: 0,
+    categories: defaultCategories,
   });
 
   useEffect(() => {
-    localStorage.setItem('budgetData', JSON.stringify(budgetData));
-  }, [budgetData]);
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const userDocRef = doc(db, 'users', user.uid);
+
+    // Subscribe to real-time updates
+    const unsubscribe = onSnapshot(userDocRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        if (userData.budgetData) {
+          setBudgetData(userData.budgetData);
+        }
+      }
+    });
+
+    // Initial load
+    const loadBudgetData = async () => {
+      try {
+        const docSnap = await getDoc(userDocRef);
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          if (userData.budgetData) {
+            setBudgetData(userData.budgetData);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading budget data:', error);
+      }
+    };
+
+    loadBudgetData();
+
+    return () => unsubscribe();
+  }, [auth.currentUser?.uid]);
+
+  const updateFirestoreData = async (newBudgetData: BudgetData) => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+      const userDocRef = doc(db, 'users', user.uid);
+      await setDoc(userDocRef, { budgetData: newBudgetData }, { merge: true });
+    } catch (error) {
+      console.error('Error updating budget data:', error);
+      toast({
+        title: 'Sync Error',
+        description: 'Failed to sync budget data',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const setSalary = (amount: number) => {
-    setBudgetData(prev => ({ ...prev, salary: amount }));
+    const newBudgetData = { ...budgetData, salary: amount };
+    setBudgetData(newBudgetData);
+    updateFirestoreData(newBudgetData);
   };
 
   const updateCategory = (categoryId: string, updates: Partial<Category>) => {
-    setBudgetData(prev => ({
-      ...prev,
-      categories: prev.categories.map(cat =>
+    const newBudgetData = {
+      ...budgetData,
+      categories: budgetData.categories.map(cat =>
         cat.id === categoryId ? { ...cat, ...updates } : cat
       ),
-    }));
+    };
+    setBudgetData(newBudgetData);
+    updateFirestoreData(newBudgetData);
   };
 
   const addExpense = (categoryId: string, expense: Omit<Expense, 'id'>) => {
@@ -57,23 +109,27 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       id: Math.random().toString(36).substr(2, 9),
     };
     
-    setBudgetData(prev => ({
-      ...prev,
-      categories: prev.categories.map(cat =>
+    const newBudgetData = {
+      ...budgetData,
+      categories: budgetData.categories.map(cat =>
         cat.id === categoryId
           ? { ...cat, expenses: [...cat.expenses, newExpense] }
           : cat
       ),
-    }));
+    };
+    setBudgetData(newBudgetData);
+    updateFirestoreData(newBudgetData);
   };
 
   const editAllocation = (categoryId: string, amount: number) => {
-    setBudgetData(prev => ({
-      ...prev,
-      categories: prev.categories.map(cat =>
+    const newBudgetData = {
+      ...budgetData,
+      categories: budgetData.categories.map(cat =>
         cat.id === categoryId ? { ...cat, allocation: amount } : cat
       ),
-    }));
+    };
+    setBudgetData(newBudgetData);
+    updateFirestoreData(newBudgetData);
   };
 
   const addCategory = (name: string) => {
@@ -84,17 +140,21 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       expenses: [],
     };
 
-    setBudgetData(prev => ({
-      ...prev,
-      categories: [...prev.categories, newCategory],
-    }));
+    const newBudgetData = {
+      ...budgetData,
+      categories: [...budgetData.categories, newCategory],
+    };
+    setBudgetData(newBudgetData);
+    updateFirestoreData(newBudgetData);
   };
 
   const removeCategory = (categoryId: string) => {
-    setBudgetData(prev => ({
-      ...prev,
-      categories: prev.categories.filter(cat => cat.id !== categoryId),
-    }));
+    const newBudgetData = {
+      ...budgetData,
+      categories: budgetData.categories.filter(cat => cat.id !== categoryId),
+    };
+    setBudgetData(newBudgetData);
+    updateFirestoreData(newBudgetData);
   };
 
   return (
