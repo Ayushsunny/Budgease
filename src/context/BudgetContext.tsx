@@ -17,11 +17,11 @@ const BudgetContext = createContext<BudgetContextType | undefined>(undefined);
 const defaultCategories: Category[] = [
   { id: '1', name: 'Rent', allocation: 0, expenses: [] },
   { id: '2', name: 'Home', allocation: 0, expenses: [] },
-  { id: '3', name: 'Suits', allocation: 0, expenses: [] },
-  { id: '4', name: 'Food Order', allocation: 0, expenses: [] },
-  { id: '5', name: 'Grocery', allocation: 0, expenses: [] },
-  { id: '6', name: 'Shop', allocation: 0, expenses: [] },
-  { id: '7', name: 'Misc', allocation: 0, expenses: [] },
+  { id: '3', name: 'Food Order', allocation: 0, expenses: [] },
+  { id: '4', name: 'Grocery', allocation: 0, expenses: [] },
+  { id: '5', name: 'Shoping', allocation: 0, expenses: [] },
+  { id: '5', name: 'Subscription', allocation: 0, expenses: [] },
+  { id: '6', name: 'Misc', allocation: 0, expenses: [] },
 ];
 
 export function BudgetProvider({ children }: { children: React.ReactNode }) {

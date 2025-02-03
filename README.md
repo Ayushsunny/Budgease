@@ -42,4 +42,16 @@ This project is built with .
 - shadcn-ui
 - Tailwind CSS
 
+project structure
+
+- `public/`: Static files that are served as-is.
+- `src/`: Source files for the project.
+  - `components/`: Reusable components.
+  - `pages/`: Pages of the application.
+  - `styles/`: Global styles.
+  - `App.tsx`: Root component of the application.
+  - `index.tsx`: Entry point of the application.
+- `vite.config.ts`: Vite configuration file.
+
+
 
