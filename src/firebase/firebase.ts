@@ -21,13 +21,11 @@ provider.setCustomParameters({
 });
 const db = getFirestore(app);
 
-// Google Sign-in
 export const signInWithGoogle = async () => {
     try {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
         
-        // Save user to Firestore if new
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
 
@@ -48,7 +46,6 @@ export const signInWithGoogle = async () => {
     }
 };
 
-// Logout
 export const logout = async () => {
     try {
         await signOut(auth);
@@ -58,7 +55,6 @@ export const logout = async () => {
     }
 };
 
-// Track auth state
 export const authStateListener = (callback) => {
     return onAuthStateChanged(auth, callback);
 };
