@@ -59,28 +59,36 @@ const Navbar = () => {
                             <Menu className="h-6 w-6" />
                         </button>
                     </SheetTrigger>
-                    <SheetContent>
-                        <SheetHeader>
-                            <SheetTitle>Menu</SheetTitle>
-                        </SheetHeader>
-                        {user ? (
-                            <div className="mt-4">
-                                <span>{user.displayName}</span>
+                    <SheetContent className="flex flex-col h-full">
+                        <div>
+                            <SheetHeader>
+                                <SheetTitle className="flex md:flex-row flex-col items-start md:items-center">
+                                    Hii.. <span className="block">{user?.displayName?.split(" ")[0]}</span>
+                                </SheetTitle>
+                            </SheetHeader>
+
+                        </div>
+
+                        <div className="flex-grow" />
+
+                        <div className="mb-4">
+                            {user ? (
                                 <Button
                                     onClick={handleLogout}
                                     variant="ghost"
-                                    className="w-full text-left justify-start mt-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
+                                    className="w-full text-left px-4 py-2 text-sm text-red-600 bg-slate-200 hover:bg-red-300 rounded-lg"
                                 >
                                     Logout
                                 </Button>
-                            </div>
-                        ) : (
-                            <LoginModal triggerClassName="w-full text-left justify-start mt-6 px-4 py-2 text-sm bg-gray-300 text-blue-600 hover:bg-blue-50 rounded-lg">
-                                Login
-                            </LoginModal>
-                        )}
+                            ) : (
+                                <LoginModal triggerClassName="w-full text-left px-4 py-2 text-sm bg-blue-500 text-white hover:bg-blue-700 rounded-lg">
+                                    Login
+                                </LoginModal>
+                            )}
+                        </div>
                     </SheetContent>
                 </Sheet>
+
             </div>
         </nav>
     );

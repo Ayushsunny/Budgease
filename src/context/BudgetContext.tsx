@@ -41,7 +41,6 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
         try {
           const userDocRef = doc(db, 'users', user.uid);
           
-          // Set up real-time listener
           const unsub = onSnapshot(userDocRef, async (docSnap) => {
             if (docSnap.exists()) {
               const userData = docSnap.data();
@@ -50,7 +49,6 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
               }
               setIsLoading(false);
             } else {
-              // If no budget data exists, set up initial data
               const initialBudgetData = {
                 salary: 0,
                 categories: defaultCategories,
@@ -62,21 +60,19 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
           }, (error) => {
             console.error('Error fetching budget data:', error);
             setIsLoading(false);
-            toast({
-              title: 'Error',
-              description: 'Could not load budget data',
-              variant: 'destructive',
-            });
+            // toast({
+            //   title: 'Error',
+            //   description: 'Could not load budget data',
+            //   variant: 'destructive',
+            // });
           });
-  
-          // Return unsubscribe function
+
           return () => unsub();
         } catch (error) {
           console.error('Authentication error:', error);
           setIsLoading(false);
         }
       } else {
-        // Reset to default when no user is logged in
         setBudgetData({
           salary: 0,
           categories: defaultCategories,
@@ -101,11 +97,6 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       await setDoc(userDocRef, { budgetData: newBudgetData }, { merge: true });
     } catch (error) {
       console.error('Error updating budget data:', error);
-      toast({
-        title: 'Sync Error',
-        description: 'Failed to sync budget data',
-        variant: 'destructive',
-      });
     }
   };
 
