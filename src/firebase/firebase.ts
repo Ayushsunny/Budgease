@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, setDoc, getDoc } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -12,14 +12,18 @@ const firebaseConfig = {
     measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({
     prompt: 'select_account'
 });
-const db = getFirestore(app);
+
+const db = initializeFirestore(app, {
+    localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager()
+    })
+});
 
 export const signInWithGoogle = async () => {
     try {
@@ -36,7 +40,18 @@ export const signInWithGoogle = async () => {
                 name: user.displayName,
                 photoURL: user.photoURL,
                 createdAt: new Date(),
-                budgetData: [],
+                budgetData: {
+                    salary: 0,
+                    categories: [
+                        { id: '1', name: 'Rent', allocation: 0, expenses: [] },
+                        { id: '2', name: 'Home', allocation: 0, expenses: [] },
+                        { id: '3', name: 'Food Order', allocation: 0, expenses: [] },
+                        { id: '4', name: 'Grocery', allocation: 0, expenses: [] },
+                        { id: '5', name: 'Shopping', allocation: 0, expenses: [] },
+                        { id: '6', name: 'Subscription', allocation: 0, expenses: [] },
+                        { id: '7', name: 'Misc', allocation: 0, expenses: [] },
+                    ],
+                },
             });
         }
         return user;

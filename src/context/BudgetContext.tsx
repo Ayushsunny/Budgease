@@ -12,6 +12,7 @@ interface BudgetContextType {
   editAllocation: (categoryId: string, amount: number) => void;
   addCategory: (name: string) => void;
   removeCategory: (categoryId: string) => void;
+  isLoading: boolean;
 }
 
 const defaultCategories: Category[] = [
@@ -32,47 +33,69 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     salary: 0,
     categories: defaultCategories,
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    const userDocRef = doc(db, 'users', user.uid);
-
-    // Subscribe to real-time updates
-    const unsubscribe = onSnapshot(userDocRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const userData = docSnap.data();
-        if (userData.budgetData) {
-          setBudgetData(userData.budgetData);
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        try {
+          const userDocRef = doc(db, 'users', user.uid);
+          
+          // Set up real-time listener
+          const unsub = onSnapshot(userDocRef, async (docSnap) => {
+            if (docSnap.exists()) {
+              const userData = docSnap.data();
+              if (userData.budgetData) {
+                setBudgetData(userData.budgetData);
+              }
+              setIsLoading(false);
+            } else {
+              // If no budget data exists, set up initial data
+              const initialBudgetData = {
+                salary: 0,
+                categories: defaultCategories,
+              };
+              await setDoc(userDocRef, { budgetData: initialBudgetData }, { merge: true });
+              setBudgetData(initialBudgetData);
+              setIsLoading(false);
+            }
+          }, (error) => {
+            console.error('Error fetching budget data:', error);
+            setIsLoading(false);
+            toast({
+              title: 'Error',
+              description: 'Could not load budget data',
+              variant: 'destructive',
+            });
+          });
+  
+          // Return unsubscribe function
+          return () => unsub();
+        } catch (error) {
+          console.error('Authentication error:', error);
+          setIsLoading(false);
         }
+      } else {
+        // Reset to default when no user is logged in
+        setBudgetData({
+          salary: 0,
+          categories: defaultCategories,
+        });
+        setIsLoading(false);
       }
     });
-
-    // Initial load
-    const loadBudgetData = async () => {
-      try {
-        const docSnap = await getDoc(userDocRef);
-        if (docSnap.exists()) {
-          const userData = docSnap.data();
-          if (userData.budgetData) {
-            setBudgetData(userData.budgetData);
-          }
-        }
-      } catch (error) {
-        console.error('Error loading budget data:', error);
-      }
-    };
-
-    loadBudgetData();
-
+  
+    // Cleanup subscription
     return () => unsubscribe();
-  }, [auth.currentUser?.uid]);
+  }, []);
 
   const updateFirestoreData = async (newBudgetData: BudgetData) => {
     const user = auth.currentUser;
-    if (!user) return;
-
+    if (!user) {
+      console.error('No user is logged in.');
+      return;
+    }
+  
     try {
       const userDocRef = doc(db, 'users', user.uid);
       await setDoc(userDocRef, { budgetData: newBudgetData }, { merge: true });
@@ -91,7 +114,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
     setBudgetData(newBudgetData);
     updateFirestoreData(newBudgetData);
   };
-
+  
   const updateCategory = (categoryId: string, updates: Partial<Category>) => {
     const newBudgetData = {
       ...budgetData,
@@ -166,6 +189,7 @@ export function BudgetProvider({ children }: { children: React.ReactNode }) {
       editAllocation,
       addCategory,
       removeCategory,
+      isLoading,
     }}>
       {children}
     </BudgetContext.Provider>
